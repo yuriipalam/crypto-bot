@@ -10,12 +10,15 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from middleware.throttling import ThrottlingMiddleware
+
 config = dotenv_values(".env")
 
 BOT_TOKEN = config["BOT_TOKEN"]
 ROOT = "https://api.coingecko.com/api/v3"  # open api, no auth
 
 router = Router()
+router.message.middleware(ThrottlingMiddleware())
 
 
 @router.message(Command("start"))
