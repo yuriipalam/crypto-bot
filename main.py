@@ -10,7 +10,6 @@ from aiogram.enums import ParseMode
 async def main() -> None:
     dp = Dispatcher()
     dp.include_router(router)
-
     bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
 

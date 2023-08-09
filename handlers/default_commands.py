@@ -1,5 +1,5 @@
 import requests
-from . import router
+from . import router, db
 from datetime import datetime
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -13,6 +13,8 @@ async def command_start_handler(message: Message) -> None:
         "I can provide you with the latest rates for BTC, ETH, SOL, and DOGE. Just type /rates to get the updates!\n\n"
         "📈 Additionally, I'll keep you informed when there are significant rate changes. Stay tuned for exciting news! 🎉"
     )
+
+    db.add_user(message.from_user.id)
 
     await message.answer(answer)
 
