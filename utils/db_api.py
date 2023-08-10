@@ -14,17 +14,18 @@ class Database:
     def _execute(self, sql, parameters: tuple = tuple(), fetchone=False, fetchall=True, commit=False):
         connection = self._connection
         cursor = connection.cursor()
-        cursor.execute(sql, parameters)
 
-        data = None
-
-        if commit:
-            connection.commit()
-        if fetchone:
-            data = cursor.fetchone()
-        if fetchall:
-            data = cursor.fetchall()
-        connection.close()
+        try:
+            cursor.execute(sql, parameters)
+            data = None
+            if commit:
+                connection.commit()
+            if fetchone:
+                data = cursor.fetchone()
+            if fetchall:
+                data = cursor.fetchall()
+        finally:
+            connection.close()
 
         return data
 
