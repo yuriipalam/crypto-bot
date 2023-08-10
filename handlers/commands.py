@@ -1,12 +1,12 @@
 import requests
-from . import router, db
+from . import router, db, flags_default, flags_request
 from datetime import datetime
 from aiogram.filters import Command
 from aiogram.types import Message
 from const import ROOT
 
 
-@router.message(Command("start"))
+@router.message(Command("start"), flags=flags_default)
 async def command_start_handler(message: Message) -> None:
     answer = (
         "🤖 Hello, I am your Crypto Bot! 🚀\n\n"
@@ -19,7 +19,7 @@ async def command_start_handler(message: Message) -> None:
     await message.answer(answer)
 
 
-@router.message(Command("rates"))
+@router.message(Command("rates"), flags=flags_request)
 async def command_rates_handler(message: Message) -> None:
     url = ROOT + "/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd"
     resp = requests.request("GET", url).json()
