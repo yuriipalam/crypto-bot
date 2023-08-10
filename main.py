@@ -11,13 +11,14 @@ from schedulers.significant_rate_change import significant_rate_change
 
 async def add_jobs(scheduler: BaseScheduler):
     scheduler.start()
-    scheduler.add_job(significant_rate_change, 'interval', minutes=20)
+    scheduler.add_job(significant_rate_change, 'interval', hours=2)
 
 
 async def main() -> None:
     router.message.middleware(ThrottlingMiddleware())
     import handlers
 
+    await significant_rate_change()
     dp.include_router(router)
     dp.startup.register(add_jobs)
     await dp.start_polling(bot, scheduler=AsyncIOScheduler())

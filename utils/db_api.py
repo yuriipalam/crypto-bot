@@ -42,7 +42,6 @@ class Database:
                  abbreviation TEXT(20) NOT NULL,
                  round_to     INTEGER  NOT NULL,
                  emoji        TEXT(20) NOT NULL,
-                 diff         INTEGER  NOT NULL,
                  is_trackable INTEGER  NOT NULL)"""
         self._execute(sql, commit=True)
 
