@@ -1,9 +1,10 @@
 import requests
-from . import router, db, flags_default, flags_request
+from . import flags_default, flags_request
 from datetime import datetime
 from aiogram.filters import Command
 from aiogram.types import Message
 from const import ROOT
+from loader import db, router
 
 
 @router.message(Command("start"), flags=flags_default)
@@ -21,17 +22,15 @@ async def command_start_handler(message: Message) -> None:
 
 @router.message(Command("rates"), flags=flags_request)
 async def command_rates_handler(message: Message) -> None:
-    url = ROOT + "/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd"
+    coins = db.select_all_coins()
+    ids = ",".join([coin[1] for coin in coins])
+
+    url = ROOT + f"/simple/price?ids={ids}&vs_currencies=usd"
     resp = requests.request("GET", url).json()
 
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
 
-    answer = (
-        f"🕒 Crypto rates at {time} GMT 🕒\n\n"
-        f"💰 BTC: {resp['bitcoin']['usd']:.2f} USD\n"
-        f"💎 ETH: {resp['ethereum']['usd']:.2f} USD\n"
-        f"☀️ SOL: {resp['solana']['usd']:.2f} USD\n"
-        f"🐶 DOGE: {resp['dogecoin']['usd']:.6f} USD\n"
-    )
+    coins_answer = "\n".join([f"{coin[4]} {coin[2]} {resp[coin[1]]['usd']:.{coin[3]}f} USD" for coin in coins])
+    answer = f"🕒 Crypto rates at {time} GMT 🕒\n\n" + coins_answer
 
     await message.answer(answer)

@@ -35,6 +35,17 @@ class Database:
                  user_id INTEGER NOT NULL UNIQUE)"""
         self._execute(sql, commit=True)
 
+    def create_table_coins(self):
+        sql = """CREATE TABLE coins(
+                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                 coin_id      TEXT(20) NOT NULL,
+                 abbreviation TEXT(20) NOT NULL,
+                 round_to     INTEGER  NOT NULL,
+                 emoji        TEXT(20) NOT NULL,
+                 diff         INTEGER  NOT NULL,
+                 is_trackable INTEGER  NOT NULL)"""
+        self._execute(sql, commit=True)
+
     def add_user(self, user_id: int):
         sql = "INSERT INTO users (user_id) VALUES (?)"
         parameters = (user_id,)
@@ -45,4 +56,8 @@ class Database:
 
     def select_all_users(self):
         sql = "SELECT user_id FROM users"
+        return self._execute(sql, fetchall=True)
+
+    def select_all_coins(self):
+        sql = "SELECT * FROM coins"
         return self._execute(sql, fetchall=True)
