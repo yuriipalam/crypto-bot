@@ -9,7 +9,7 @@ from cachetools import TTLCache
 class ThrottlingMiddleware(BaseMiddleware):
     caches = {
         "default": TTLCache(maxsize=10_000, ttl=2),
-        "request": TTLCache(maxsize=10_000, ttl=5),
+        "request": TTLCache(maxsize=10_000, ttl=60),
     }
 
     async def __call__(
@@ -22,7 +22,9 @@ class ThrottlingMiddleware(BaseMiddleware):
 
         if throttling_key is not None and throttling_key in self.caches:
             if event.chat.id in self.caches[throttling_key]:
-                await event.answer("Relax dude...")
+                await event.answer(
+                    "Relax dude..." if throttling_key == "default" else "One request per minute, be patient 😐"
+                )
                 return
             else:
                 self.caches[throttling_key][event.chat.id] = None

@@ -1,5 +1,4 @@
 import asyncio
-import random
 
 import requests
 
@@ -23,8 +22,7 @@ def calculate_diff_to_compare(coin):
 
 async def significant_rate_change():
     current_time = datetime.now()
-    hours = random.randint(3, 6)
-    time_ago = current_time - timedelta(hours=hours)
+    time_ago = current_time - timedelta(hours=8)
     current_timestamp = current_time.timestamp()
     time_ago_timestamp = time_ago.timestamp()
 
@@ -66,4 +64,4 @@ async def significant_rate_change():
 
                 await bot.send_message(user[0], message)
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(7)

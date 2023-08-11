@@ -5,8 +5,8 @@ from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from loader import router, dp, bot
-from middlewares.throttling import ThrottlingMiddleware
-from schedulers.significant_rate_change import significant_rate_change
+from middlewares import ThrottlingMiddleware
+from schedulers import significant_rate_change
 
 
 async def add_jobs(scheduler: BaseScheduler):
