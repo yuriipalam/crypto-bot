@@ -15,6 +15,8 @@ async def command_start_handler(message: Message) -> None:
     answer = (
         "🤖 Hello, I am your Crypto Bot! 🚀\n\n"
         "I can provide you with the latest rates for BTC, ETH, SOL, and DOGE. Just type /rates to get the updates!\n\n"
+        "Also, use the /rate_changes command to receive updates on how the rates have changed ⬆️⬇️ compared to the previous day.\n\n"
+        "🆘 List of available commands: /help\n\n"
         "📈 Additionally, I'll keep you informed when there are significant rate changes. Stay tuned for exciting news! 🎉"
     )
 
