@@ -4,7 +4,7 @@ import requests
 
 from utils import api_urls
 from . import flags_default, flags_request
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 from aiogram.filters import Command
 from aiogram.types import Message
 from loader import db, router
@@ -52,7 +52,7 @@ async def command_rates_handler(message: Message) -> None:
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
 
     coins_answer = "\n".join([f"{coin[4]} {coin[2]}: {resp[coin[1]]['usd']:.{coin[3]}f} USD" for coin in coins])
-    answer = f"🕒 Crypto rates at {time} GMT 🕒\n\n" + coins_answer
+    answer = f"🕒 Crypto rates at {time} GMT\n\n" + coins_answer
 
     await message.answer(answer)
 
@@ -92,6 +92,6 @@ async def command_rate_changes_handler(message: Message) -> None:
     await msg_working.delete()
 
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
-    answer = f"🕒 Rate changes at {time} GMT, Compared to yesterday 🕒\n\n" + "\n\n".join(coins_answer)
+    answer = f"🕒 Rate changes at {time} GMT, Compared to yesterday\n\n" + "\n\n".join(coins_answer)
 
     await message.answer(answer)
