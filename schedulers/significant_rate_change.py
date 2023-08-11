@@ -2,17 +2,17 @@ import asyncio
 
 import requests
 
-from const import ROOT
 from loader import bot, db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+
+from utils import api_urls
 
 
 def calculate_diff_to_compare(coin):
-    current_time = datetime.now()
-    day_ago_stamp = (current_time - timedelta(days=1)).timestamp()
-    one_week_ago_stamp = (current_time - timedelta(days=2)).timestamp()
+    start_of_day = datetime.combine(date.today(), datetime.min.time())
+    day_ago_stamp = (start_of_day - timedelta(days=1)).timestamp()
 
-    url = ROOT + f"/coins/{coin[1]}/market_chart/range?vs_currency=usd&from={one_week_ago_stamp}&to={day_ago_stamp}"
+    url = api_urls.rate_range(coin[1], day_ago_stamp, start_of_day.timestamp())
     resp = requests.request("GET", url).json()
 
     prices = [x[1] for x in resp['prices']]
@@ -21,19 +21,17 @@ def calculate_diff_to_compare(coin):
 
 
 async def significant_rate_change():
-    current_time = datetime.now()
-    time_ago = current_time - timedelta(hours=8)
-    current_timestamp = current_time.timestamp()
-    time_ago_timestamp = time_ago.timestamp()
+    current_time_stamp = datetime.now().timestamp()
+    start_of_day_stamp = datetime.combine(date.today(), datetime.min.time()).timestamp()
 
     coins = db.select_all_coins()
 
     for coin in coins:
         if coin[5] == 1:
-            url = ROOT + f"/coins/{coin[1]}/market_chart/range?vs_currency=usd&from={time_ago_timestamp}&to={current_timestamp}"
+            url = api_urls.rate_range(coin[1], start_of_day_stamp, current_time_stamp)
             resp = requests.request("GET", url).json()
-            prices = resp['prices']  # list of pairs (timestamp, price)
 
+            prices = resp['prices']  # list of pairs (timestamp, price)
             prices_only = [x[1] for x in prices]  # list of only prices [price,...]
             min_price = min(prices_only)
             max_price = max(prices_only)

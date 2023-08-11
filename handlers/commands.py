@@ -1,12 +1,13 @@
 import asyncio
 
 import requests
+
+from utils import api_urls
 from . import flags_default, flags_request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from aiogram.filters import Command
 from aiogram.types import Message
-from const import ROOT
-from loader import db, router, bot
+from loader import db, router
 
 
 @router.message(Command("start"), flags=flags_default)
@@ -41,9 +42,9 @@ async def command_help_handler(message: Message) -> None:
 @router.message(Command("rates"), flags=flags_request)
 async def command_rates_handler(message: Message) -> None:
     coins = db.select_all_coins()
-    ids = ",".join([coin[1] for coin in coins])
 
-    url = ROOT + f"/simple/price?ids={ids}&vs_currencies=usd"
+    ids = ",".join([coin[1] for coin in coins])
+    url = api_urls.currency_prices_usd(ids)
     resp = requests.request("GET", url).json()
 
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
@@ -60,20 +61,19 @@ async def command_rate_changes_handler(message: Message) -> None:
 
     coins = db.select_all_coins()
 
-    current_time = datetime.now()
-    day_ago_stamp = (current_time - timedelta(days=1)).timestamp()
+    current_time_stamp = datetime.now().timestamp()
+    start_of_day_stamp = datetime.combine(date.today(), datetime.min.time()).timestamp()
 
     coins_answer = []
 
     for coin in coins:
-        url = ROOT + f"/coins/{coin[1]}/market_chart/range?vs_currency=usd&from={day_ago_stamp}&to={current_time.timestamp()}"
+        url = api_urls.rate_range(coin[1], start_of_day_stamp, current_time_stamp)
         resp = requests.request("GET", url).json()
 
         prices = resp["prices"]
         current_price = prices[-1][1]
-        day_ago_price = prices[0][1]
-
-        percentage = 100 - (100 * current_price / day_ago_price)
+        start_of_day_price = prices[0][1]
+        percentage = (100 * current_price / start_of_day_price) - 100
 
         if percentage > 0:
             direction = "⬆️ increased"
@@ -83,7 +83,7 @@ async def command_rate_changes_handler(message: Message) -> None:
             direction = "🔁 stagnated"
 
         coins_answer.append(
-            f"{coin[4]} {coin[2]}: {current_price:.{coin[3]}f} USD {direction} {f'by {percentage:.3f}%' if percentage != 0 else ''}")
+            f"{coin[4]} {coin[2]}: {current_price:.{coin[3]}f} USD\n{direction} {f'by {percentage:.3f}%' if percentage != 0 else ''} from {start_of_day_price:.{coin[3]}f} USD")
 
         await asyncio.sleep(2)
 

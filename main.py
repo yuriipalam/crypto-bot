@@ -11,7 +11,7 @@ from schedulers import significant_rate_change
 
 async def add_jobs(scheduler: BaseScheduler):
     scheduler.start()
-    scheduler.add_job(significant_rate_change, 'interval', hours=2)
+    scheduler.add_job(significant_rate_change, 'interval', hours=4)
 
 
 async def main() -> None:
