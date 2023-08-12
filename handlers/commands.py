@@ -44,8 +44,7 @@ async def command_rates_handler(message: Message) -> None:
 
     coins = db.select_all_coins()
 
-    ids = ",".join([coin[1] for coin in coins])
-    resp = await requests_api.get_currency_prices_usd(ids, msg_working=msg_working)
+    resp = await requests_api.get_currency_prices_usd([coin[1] for coin in coins], msg_working=msg_working)
 
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
 
@@ -98,5 +97,4 @@ async def command_rate_changes_handler(message: Message) -> None:
 
 @router.error()
 async def error_handler(event: ErrorEvent):
-    print(event.exception)
     await event.update.message.answer("Something went wrong... Try again, please 😕")
