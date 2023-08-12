@@ -1,19 +1,16 @@
 import asyncio
 
-import requests
-
 from loader import bot, db
 from datetime import datetime, timedelta, date
 
-from utils import api_urls
+from loader import requests_api
 
 
-def calculate_diff_to_compare(coin):
+async def calculate_diff_to_compare(coin):
     start_of_day = datetime.combine(date.today(), datetime.min.time())
     day_ago_stamp = (start_of_day - timedelta(days=1)).timestamp()
 
-    url = api_urls.rate_range(coin[1], day_ago_stamp, start_of_day.timestamp())
-    resp = requests.request("GET", url).json()
+    resp = await requests_api.get_rate_range(coin[1], day_ago_stamp, start_of_day.timestamp())
 
     prices = [x[1] for x in resp['prices']]
 
@@ -28,8 +25,7 @@ async def significant_rate_change():
 
     for coin in coins:
         if coin[5] == 1:
-            url = api_urls.rate_range(coin[1], start_of_day_stamp, current_time_stamp)
-            resp = requests.request("GET", url).json()
+            resp = await requests_api.get_rate_range(coin[1], start_of_day_stamp, current_time_stamp)
 
             prices = resp['prices']  # list of pairs (timestamp, price)
             prices_only = [x[1] for x in prices]  # list of only prices [price,...]
@@ -37,7 +33,7 @@ async def significant_rate_change():
             max_price = max(prices_only)
             curren_price = prices[-1][1]
 
-            compare_diff = calculate_diff_to_compare(coin)
+            compare_diff = await calculate_diff_to_compare(coin)
 
             if (curren_price - min_price) >= compare_diff:
                 time_ago_price = min_price
@@ -62,4 +58,4 @@ async def significant_rate_change():
 
                 await bot.send_message(user[0], message)
 
-        await asyncio.sleep(7)
+        await asyncio.sleep(3)

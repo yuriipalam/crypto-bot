@@ -1,13 +1,10 @@
 import asyncio
 
-import requests
-
-from utils import api_urls
 from . import flags_default, flags_request
 from datetime import datetime, date
 from aiogram.filters import Command
-from aiogram.types import Message
-from loader import db, router
+from aiogram.types import Message, ErrorEvent
+from loader import db, router, requests_api
 
 
 @router.message(Command("start"), flags=flags_default)
@@ -43,16 +40,19 @@ async def command_help_handler(message: Message) -> None:
 
 @router.message(Command("rates"), flags=flags_request)
 async def command_rates_handler(message: Message) -> None:
+    msg_working = await message.answer("Working on it... 👨‍💻")
+
     coins = db.select_all_coins()
 
     ids = ",".join([coin[1] for coin in coins])
-    url = api_urls.currency_prices_usd(ids)
-    resp = requests.request("GET", url).json()
+    resp = await requests_api.get_currency_prices_usd(ids, msg_working=msg_working)
 
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
 
     coins_answer = "\n".join([f"{coin[4]} {coin[2]}: {resp[coin[1]]['usd']:.{coin[3]}f} USD" for coin in coins])
     answer = f"🕒 Crypto rates at {time} GMT\n\n" + coins_answer
+
+    await msg_working.delete()
 
     await message.answer(answer)
 
@@ -69,8 +69,7 @@ async def command_rate_changes_handler(message: Message) -> None:
     coins_answer = []
 
     for coin in coins:
-        url = api_urls.rate_range(coin[1], start_of_day_stamp, current_time_stamp)
-        resp = requests.request("GET", url).json()
+        resp = await requests_api.get_rate_range(coin[1], start_of_day_stamp, current_time_stamp, msg_working=msg_working)
 
         prices = resp["prices"]
         current_price = prices[-1][1]
@@ -95,3 +94,9 @@ async def command_rate_changes_handler(message: Message) -> None:
     answer = f"🕒 Rate changes at {time} GMT, Compared to yesterday\n\n" + "\n\n".join(coins_answer)
 
     await message.answer(answer)
+
+
+@router.error()
+async def error_handler(event: ErrorEvent):
+    print(event.exception)
+    await event.update.message.answer("Something went wrong... Try again, please 😕")
