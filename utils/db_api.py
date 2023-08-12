@@ -1,7 +1,5 @@
 import sqlite3
 
-from aiogram import types
-
 
 class Database:
     def __init__(self, path="main.db"):

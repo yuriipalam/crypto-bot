@@ -23,11 +23,11 @@ class RequestsAPI:
 
         return await wrapper()
 
-    def _currency_prices_usd_url(self, *args):
-        return ROOT + f"/simple/price?ids={','.join([x for x in args])}&vs_currencies=usd"
+    def _currency_prices_usd_url(self, coin_ids):
+        return ROOT + f"/simple/price?ids={','.join([x for x in coin_ids])}&vs_currencies=usd"
 
-    async def get_currency_prices_usd(self, *args, msg_working: Message = None):
-        return await self._get_request(self._currency_prices_usd_url(*args), msg_working=msg_working)
+    async def get_currency_prices_usd(self, coin_ids, msg_working: Message = None):
+        return await self._get_request(self._currency_prices_usd_url(coin_ids), msg_working=msg_working)
 
     def _rate_range_url(self, coin_id, from_stamp, to_stamp):
         return ROOT + f"/coins/{coin_id}/market_chart/range?vs_currency=usd&from={from_stamp}&to={to_stamp}"
