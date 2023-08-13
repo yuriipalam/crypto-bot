@@ -105,7 +105,7 @@ async def command_rate_changes_handler(message: Message) -> None:
 
 @router.message(flags=flags_default)
 async def any_message_handler(message: Message):
-    await message.answer("Can't help you with that, see /help to know what I can do 😉")
+    await message.answer("Can't help you with that, see /help to know what I can do 😉", reply_markup=main_keyboard)
 
 
 @router.error()
