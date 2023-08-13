@@ -1,9 +1,12 @@
 import asyncio
 from datetime import datetime, date
 
+from aiogram import F
 from aiogram.filters import Command
 from aiogram.types import Message, ErrorEvent
 
+from keyboards import main_keyboard
+from keyboards.main import rates_button, help_button, rate_changes_button
 from loader import db, router, requests_api, current_coins_str
 from . import flags_default, flags_request
 
@@ -20,9 +23,10 @@ async def command_start_handler(message: Message) -> None:
 
     db.add_user(message.from_user.id)
 
-    await message.answer(answer)
+    await message.answer(answer, reply_markup=main_keyboard)
 
 
+@router.message(F.text == help_button.text, flags=flags_default)
 @router.message(Command("help"), flags=flags_default)
 async def command_help_handler(message: Message) -> None:
     answer = (
@@ -32,13 +36,14 @@ async def command_help_handler(message: Message) -> None:
         "Seek guidance on interacting with Crypto Bot's features and commands.\n\n"
         "/rates - Check Current Rates 📈\n"
         "Obtain the latest rates of selected cryptocurrencies against USD. Stay informed about the ever-changing crypto market.\n\n"
-        "/rate_changes - Monitor Rate Changes 🔄\n"
+        "/rate_changes - Monitor Rate Changes 📊\n"
         "Receive updates on how rates have changed compared to the previous day. Stay aware of upward, downward, and stagnant trends.\n\n"
     )
 
-    await message.reply(answer)
+    await message.reply(answer, reply_markup=main_keyboard)
 
 
+@router.message(F.text == rates_button.text, flags=flags_request)
 @router.message(Command("rates"), flags=flags_request)
 async def command_rates_handler(message: Message) -> None:
     msg_working = await message.answer("Working on it... 👨‍💻")
@@ -54,9 +59,10 @@ async def command_rates_handler(message: Message) -> None:
 
     await msg_working.delete()
 
-    await message.answer(answer)
+    await message.answer(answer, reply_markup=main_keyboard)
 
 
+@router.message(F.text == rate_changes_button.text, flags=flags_request)
 @router.message(Command("rate_changes"), flags=flags_request)
 async def command_rate_changes_handler(message: Message) -> None:
     msg_working = await message.answer("Working on it... 👨‍💻")
@@ -69,7 +75,8 @@ async def command_rate_changes_handler(message: Message) -> None:
     coins_answer = []
 
     for coin in coins:
-        resp = await requests_api.get_rate_range(coin[1], start_of_day_stamp, current_time_stamp, msg_working=msg_working)
+        resp = await requests_api.get_rate_range(coin[1], start_of_day_stamp, current_time_stamp,
+                                                 msg_working=msg_working)
 
         prices = resp["prices"]
         current_price = prices[-1][1]
@@ -93,9 +100,14 @@ async def command_rate_changes_handler(message: Message) -> None:
     time = datetime.now().strftime("%H:%M:%S, %d/%m/%Y")
     answer = f"🕒 Rate changes at {time} GMT, Compared to yesterday\n\n" + "\n\n".join(coins_answer)
 
-    await message.answer(answer)
+    await message.answer(answer, reply_markup=main_keyboard)
+
+
+@router.message(flags=flags_default)
+async def any_message_handler(message: Message):
+    await message.answer("Can't help you with that, see /help to know what I can do 😉")
 
 
 @router.error()
 async def error_handler(event: ErrorEvent):
-    await event.update.message.answer("Something went wrong... Try again, please 😕")
+    await event.update.message.answer("Something went wrong... Try again, please 😕", reply_markup=main_keyboard)

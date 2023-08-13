@@ -23,7 +23,7 @@ class ThrottlingMiddleware(BaseMiddleware):
         if throttling_key is not None and throttling_key in self.caches:
             if event.chat.id in self.caches[throttling_key]:
                 await event.answer(
-                    "Relax dude..." if throttling_key == "default" else "Bro, be patient 😐"
+                    "Relax dude, not that fast 😐" if throttling_key == "default" else "Bro, be patient 😐"
                 )
                 return
             else:

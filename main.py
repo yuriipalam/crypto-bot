@@ -22,9 +22,9 @@ async def set_bot_parameters():  # set parameters that change dynamically
     )
     await bot.set_my_commands(
         [
-            BotCommand(command="help", description=" - Need assistance? 🆘"),
-            BotCommand(command="rates", description=f" - Current rates for {current_coins_str} 📊💰"),
-            BotCommand(command="rate_changes", description=" - Monitor rate changes compared to yesterday 🔄")
+            BotCommand(command="help", description="Need assistance? 🆘"),
+            BotCommand(command="rates", description=f"Current rates for {current_coins_str} 📊💰"),
+            BotCommand(command="rate_changes", description="Monitor rate changes compared to yesterday 🔄")
         ]
     )
 
