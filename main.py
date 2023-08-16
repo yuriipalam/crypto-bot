@@ -12,7 +12,7 @@ from schedulers import significant_rate_change
 
 async def add_jobs(scheduler: BaseScheduler):
     scheduler.start()
-    scheduler.add_job(significant_rate_change, 'interval', hours=4)
+    scheduler.add_job(significant_rate_change, 'interval', hours=6)
 
 
 async def set_bot_parameters():  # set parameters that change dynamically

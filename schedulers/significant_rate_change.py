@@ -23,7 +23,7 @@ async def significant_rate_change():
     coins = db.select_all_coins()
 
     for coin in coins:
-        if coin[5] == 1:
+        if coin[5] == 1:  # is_trackable
             resp = await requests_api.get_rate_range(coin[1], start_of_day_stamp, current_time_stamp)
 
             prices = resp['prices']  # list of pairs (timestamp, price)
@@ -45,16 +45,16 @@ async def significant_rate_change():
             else:
                 break
 
+            message = (
+                f"⚠️ Alert! {coin[2]} rate has {direction} significantly within the last time! ⚠️\n\n"
+                f"Yesterday\'s {'min' if diff > 0 else 'max'}: {time_ago_price:.{coin[3]}f} USD\n"
+                f"Current rate: {curren_price:.{coin[3]}f} USD\n"
+                f"Difference: {diff:.{coin[3]}f} USD\n\n"
+                "Stay tuned for more updates! 🚀📈"
+            )
+
             users = db.select_all_users()
             for user in users:
-                message = (
-                    f"⚠️ Alert! {coin[2]} rate has {direction} significantly within the last time! ⚠️\n\n"
-                    f"Previous rate: {time_ago_price:.{coin[3]}f} USD\n"
-                    f"New rate: {curren_price:.{coin[3]}f} USD\n"
-                    f"Difference: {diff:.{coin[3]}f} USD\n\n"
-                    "Stay tuned for more updates! 🚀📈"
-                )
-
                 await bot.send_message(user[0], message)
 
         await asyncio.sleep(3)
